@@ -1,39 +1,121 @@
 import { useState } from "react";
+import DifficultySelector from "../components/DifficultySelector";
+import TopicSelector from "../components/TopicSelector";
 import { useAuth } from "../context/AuthContext";
+
+const topicNames = {
+  algebra: "Algebra",
+  fractions: "Fractions",
+};
+
+const difficultyNames = {
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard",
+};
 
 export default function HomePage() {
   const { currentUser, logout } = useAuth();
-  const [error, setError] = useState("");
+
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [logoutError, setLogoutError] = useState("");
+
+  function handleTopicSelection(topic) {
+    setSelectedTopic(topic);
+
+    // Reset difficulty whenever the student changes topics.
+    setSelectedDifficulty("");
+  }
+
+  function handleStartPractice() {
+    if (!selectedTopic || !selectedDifficulty) {
+      return;
+    }
+
+    // The quiz generator will be connected here in the next milestone.
+    console.log({
+      topic: selectedTopic,
+      difficulty: selectedDifficulty,
+    });
+  }
 
   async function handleLogout() {
-    setError("");
+    setLogoutError("");
 
     try {
       await logout();
     } catch {
-      setError("Unable to sign out. Please try again.");
+      setLogoutError("Unable to sign out. Please try again.");
     }
   }
 
+  const canStart = Boolean(selectedTopic && selectedDifficulty);
+
   return (
-    <main className="dashboard-page">
-      <section className="dashboard-card">
-        <p className="eyebrow">Grade 5 Mathematics</p>
-        <h1>You are signed in.</h1>
+    <main className="home-page">
+      <header className="app-header">
+        <div>
+          <p className="app-name">Grade 5 Mathematics</p>
+          <p className="welcome-message">
+            Signed in as <strong>{currentUser?.email}</strong>
+          </p>
+        </div>
 
-        <p className="signed-in-email">
-          Account: <strong>{currentUser?.email}</strong>
-        </p>
-
-        <p>
-          Firebase Authentication is working. The next step will be adding the
-          Algebra and Fractions topic selection page.
-        </p>
-
-        {error && <div className="form-error">{error}</div>}
-
-        <button className="primary-button logout-button" onClick={handleLogout}>
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={handleLogout}
+        >
           Sign out
+        </button>
+      </header>
+
+      <section className="home-hero">
+        <p className="eyebrow">Practice session</p>
+        <h1>What would you like to practice?</h1>
+        <p>
+          Choose a mathematics topic and difficulty level. Each practice
+          session will contain 10 questions.
+        </p>
+      </section>
+
+      {logoutError && <div className="form-error">{logoutError}</div>}
+
+      <TopicSelector
+        selectedTopic={selectedTopic}
+        onSelectTopic={handleTopicSelection}
+      />
+
+      <DifficultySelector
+        selectedDifficulty={selectedDifficulty}
+        onSelectDifficulty={setSelectedDifficulty}
+        disabled={!selectedTopic}
+      />
+
+      <section className="practice-summary">
+        <div>
+          <p className="summary-label">Your selection</p>
+
+          {canStart ? (
+            <p className="summary-selection">
+              {topicNames[selectedTopic]} ·{" "}
+              {difficultyNames[selectedDifficulty]} · 10 questions
+            </p>
+          ) : (
+            <p className="summary-placeholder">
+              Select a topic and difficulty to continue.
+            </p>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="primary-button start-button"
+          disabled={!canStart}
+          onClick={handleStartPractice}
+        >
+          Start practice
         </button>
       </section>
     </main>
