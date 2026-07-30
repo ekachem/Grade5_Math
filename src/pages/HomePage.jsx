@@ -14,7 +14,7 @@ const difficultyNames = {
   hard: "Hard",
 };
 
-export default function HomePage() {
+export default function HomePage({ onStartPractice }) {
   const { currentUser, logout } = useAuth();
 
   const [selectedTopic, setSelectedTopic] = useState("");
@@ -31,15 +31,13 @@ export default function HomePage() {
   function handleStartPractice() {
     if (!selectedTopic || !selectedDifficulty) {
       return;
-    }
+   }
 
-    // The quiz generator will be connected here in the next milestone.
-    console.log({
-      topic: selectedTopic,
-      difficulty: selectedDifficulty,
-    });
-  }
-
+  onStartPractice({
+    topic: selectedTopic,
+    difficulty: selectedDifficulty,
+  });
+ }
   async function handleLogout() {
     setLogoutError("");
 
