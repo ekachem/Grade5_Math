@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { downloadSessionPdf } from "../utils/downloadSessionPdf";
+
 const topicNames = {
   algebra: "Algebra",
   fractions: "Fractions",
@@ -14,6 +17,26 @@ export default function SummaryPage({
   onPracticeAgain,
   onReturnHome,
 }) {
+
+  const [pdfError, setPdfError] = useState("");
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  function handleDownloadPdf() {
+    setPdfError("");
+    setGeneratingPdf(true);
+
+    try {
+      downloadSessionPdf(session);
+    } catch (error) {
+      console.error("Unable to generate PDF:", error);
+      setPdfError(
+        "Unable to generate the PDF. Please try again."
+      );
+    } finally {
+      setGeneratingPdf(false);
+    }
+  }
+
   const percentage = Math.round(
     (session.score / session.totalQuestions) * 100
   );
@@ -109,24 +132,38 @@ export default function SummaryPage({
             ))}
           </div>
         </section>
+	{pdfError && (
+  <div className="form-error summary-pdf-error">
+    {pdfError}
+  </div>
+)}
 
-        <div className="summary-actions">
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={onReturnHome}
-          >
-            Choose another topic
-          </button>
-
-          <button
-            type="button"
-            className="primary-button summary-primary-button"
-            onClick={onPracticeAgain}
-          >
-            Practice again
-          </button>
-        </div>
+  <div className="summary-actions">
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={onReturnHome}
+    >
+      Choose another topic
+    </button>
+  
+    <button
+      type="button"
+      className="secondary-button download-pdf-button"
+      onClick={handleDownloadPdf}
+      disabled={generatingPdf}
+    >
+      {generatingPdf ? "Creating PDF..." : "Download PDF"}
+    </button>
+  
+    <button
+      type="button"
+      className="primary-button summary-primary-button"
+      onClick={onPracticeAgain}
+    >
+      Practice again
+    </button>
+  </div>
       </section>
     </main>
   );
