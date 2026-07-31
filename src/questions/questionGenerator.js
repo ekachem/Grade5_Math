@@ -1,3 +1,5 @@
+import { generateAlgebraQuestion } from "./algebra/generateAlgebraQuestion";
+
 function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -24,45 +26,6 @@ function simplifyFraction(numerator, denominator) {
   };
 }
 
-function createAlgebraQuestion(difficulty) {
-  if (difficulty === "easy") {
-    const answer = randomInteger(1, 20);
-    const addedNumber = randomInteger(1, 15);
-    const result = answer + addedNumber;
-
-    return {
-      prompt: `x + ${addedNumber} = ${result}`,
-      instruction: "Find the value of x.",
-      answer: String(answer),
-      answerType: "number",
-    };
-  }
-
-  if (difficulty === "medium") {
-    const answer = randomInteger(2, 12);
-    const multiplier = randomInteger(2, 10);
-    const result = answer * multiplier;
-
-    return {
-      prompt: `${multiplier}x = ${result}`,
-      instruction: "Find the value of x.",
-      answer: String(answer),
-      answerType: "number",
-    };
-  }
-
-  const answer = randomInteger(2, 15);
-  const multiplier = randomInteger(2, 8);
-  const addedNumber = randomInteger(2, 20);
-  const result = multiplier * answer + addedNumber;
-
-  return {
-    prompt: `${multiplier}x + ${addedNumber} = ${result}`,
-    instruction: "Find the value of x.",
-    answer: String(answer),
-    answerType: "number",
-  };
-}
 
 function createEasyFractionQuestion() {
   const denominator = randomInteger(2, 10);
@@ -140,24 +103,40 @@ function createFractionQuestion(difficulty) {
   return createHardFractionQuestion();
 }
 
-export function generateQuestions(topic, difficulty, count = 10) {
+export function generateQuestions(
+  topic,
+  difficulty,
+  count = 10
+) {
   const questions = [];
+  let previousAlgebraType = null;
 
   for (let index = 0; index < count; index += 1) {
-    const question =
-      topic === "algebra"
-        ? createAlgebraQuestion(difficulty)
-        : createFractionQuestion(difficulty);
+    let question;
+
+    if (topic === "algebra") {
+      question = generateAlgebraQuestion(
+        difficulty,
+        previousAlgebraType
+          ? [previousAlgebraType]
+          : []
+      );
+
+      previousAlgebraType = question.type;
+    } else {
+      question = createFractionQuestion(difficulty);
+    }
 
     questions.push({
       ...question,
-      id: `${topic}-${difficulty}-${Date.now()}-${index}`,
+      id:
+        `${topic}-${difficulty}-` +
+        `${Date.now()}-${index}`,
     });
   }
 
   return questions;
 }
-
 function normalizeFraction(value) {
   const compactValue = value.replace(/\s+/g, "");
   const parts = compactValue.split("/");

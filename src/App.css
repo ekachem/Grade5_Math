@@ -612,6 +612,7 @@
   font-size: clamp(2.5rem, 10vw, 5rem);
   line-height: 1.1;
   text-align: center;
+  white-space: pre-line;
 }
 
 .question-card form {
@@ -870,5 +871,15 @@
 @media (max-width: 820px) {
   .summary-actions {
     flex-wrap: wrap;
+  }
+}
+
+.question-prompt {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .question-prompt {
+    font-size: 2rem;
   }
 }
